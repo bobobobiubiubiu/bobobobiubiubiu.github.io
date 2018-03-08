@@ -1,0 +1,79 @@
+
+<!DOCTYPE html>
+<html lang = "zh-cn">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>首页</title>
+    <link rel="stylesheet" href="http://cdn.bootcss.com/bootstrap/3.3.0/css/bootstrap.min.css">
+    <style>
+        .active{
+            color: red;
+        }
+        .inactive{
+            color: blue;
+        }
+    </style>
+  </head>
+  <body ng-app="MyApp">
+    <div ng-controller="MyController" style="margin-left:30px;">
+        <h1>免息分期买理财收益计算：</h1>
+        <br>
+        总金额：<input type="number" ng-model="config.licai.total" style="margin-right:50px;">
+        分期数：<input type="number" ng-model="config.licai.staging" style="margin-right:50px;">
+        理财利率：<input type="number" ng-model="config.licai.rate"><br><br>
+        <button ng-click="profit(config.licai.total,config.licai.staging,config.licai.rate)" style="margin-left:400px;">确定</button>
+        总收益：<span ng-bind="config.licai.interest"></span>
+        <h1>银行分期折合年化利率计算：</h1>
+        <br>
+        总金额：<input type="number" ng-model="config.yinhanglilv.total" style="margin-right:50px;">
+        分期数：<input type="number" ng-model="config.yinhanglilv.staging" style="margin-right:50px;">
+        总利息：<input type="number" ng-model="config.yinhanglilv.interest"><br><br>
+        <button ng-click="rate(config.yinhanglilv.total,config.yinhanglilv.staging,config.yinhanglilv.interest)" style="margin-left:400px;">确定</button>
+        年化利率：<span ng-bind="config.yinhanglilv.rate"></span>
+    </div>
+    <script src="http://cdn.bootcss.com/jquery/1.11.1/jquery.min.js"></script>
+    <script src="http://cdn.bootcss.com/angular.js/1.6.6/angular.min.js"></script>
+    <script src="http://cdn.bootcss.com/bootstrap/3.3.0/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+    var myapp = angular.module('MyApp',[]);
+    myapp.controller('MyController', ['$scope','$q','$timeout', function($scope,$q,$timeout) {
+        $scope.config = {
+            licai:{
+                total: 0,
+                staging: 0,
+                interest: '',
+                rate: 0
+            },
+            yinhanglilv:{
+                total: 0,
+                staging: 0,
+                interest: 0,
+                rate: ''
+            }
+        }
+        //总利息计算(总额，期数，年化利率)
+        $scope.profit = function(total,staging,rate){
+            var interest = 0,totals = total;
+            for(var i = 0; i < staging; i++){
+                interest += totals*(rate/12);
+                totals = totals - (total/staging)
+            }
+            $scope.config.licai.interest = interest.toFixed(2) + '元';
+        }
+        //年化利率换算(总额，期数，总利息)
+        $scope.rate = function(total,staging,interest){
+            var x;totals = total;inter = 0;
+            for(x = 0.00001; inter < interest; x = x + 0.00001){
+                var inter = 0;
+                for(var i = 0; i < staging; i++){
+                    inter += (totals-(total/staging)*i)*(x/12)
+                }
+            }
+            $scope.config.yinhanglilv.rate = parseInt(x*10000)/100 + '%';
+        }
+      }]);
+  </script>
+  </body>
+</html>
